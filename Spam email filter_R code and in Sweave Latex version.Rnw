@@ -7,9 +7,6 @@
 \SweaveOpts{concordance=TRUE}
 \maketitle
 
-
-
-
 <<reference1,echo=TRUE,eval=TRUE>>=
 ## loading library rpart
 library(rpart)	
