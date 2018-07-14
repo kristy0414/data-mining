@@ -12,7 +12,12 @@ install.packages("ada")
 library(ada)
 install.packages("arules")
 
+#please see the data description in the following link, and it includes 1473 oberservations.
+#https://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice
+
+
 #Before do the histograms, transform the data to the numerical type.
+cmc<-read.csv("cmc.csv",header=TRUE)
 cmc$result<-as.numeric(cmc$result)
 cmc$Weducation<-as.numeric(cmc$Weducation)
 cmc$Heducation<-as.numeric(cmc$Heducation)
