@@ -1,0 +1,181 @@
+\documentclass{article}
+\usepackage[margin = 1in]{geometry}
+\title{Appendix}
+\author{R codes,tables and plots}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\maketitle
+
+
+
+
+<<reference1,echo=TRUE,eval=TRUE>>=
+## loading library rpart
+library(rpart)	
+## loading data 
+spam.data <- read.table("http://rohan.sdsu.edu/~jjfan/sta702/spamdata.txt", 
+                        sep=",", na.strings="NA")
+dim(spam.data)
+##naming the variables for our data
+names(spam.data) <- c("wfmake", "wfaddress", "wfall", "wf3d", "wfour","wfover", "wfremove", 
+                      "wfinternet", "wforder","wfmail", "wfreceive", "wfwill", "wfpeople",  
+                      "wfreport", "wfaddresses", "wffree", "wfbusiness",  "wfemail", "wfyou",
+                      "wfcredit","wfyour","wffont", "wf000", "wfmoney", "wfhp", "wfhpl",
+                      "wfgeorge", "wf650", "wflab", "wflabs", "wftelnet", "wf857","wfdata",
+                      "wf415","wf85", "wftechnology", "wf1999", "wfparts","wfpm", "wfdirect", 
+                      "wfcs", "wfmeeting", "wforiginal", "wfproject","wfre", "wfedu", "wftable", 
+                      "wfconference", "cfsc", "cfpar", "cfbrack", "cfexc", "cfdollar", 
+                      "cfpound","crlaverage", "crllongest", "crltotal", "spam")
+
+## Label the outcome variable
+spam.data$spam <- factor(spam.data$spam, levels=0:1, 
+                         labels=c("No", "Spam"))
+##view data
+head(spam.data)
+##check how many are spam and no spam
+table(spam.data$spam)
+
+############## First Classifier with equal weight cost for false 
+##neg and false positive
+
+## setting Cross Validation parameter and to grow the largest tree
+my.control <- rpart.control(xval=10, cp=0) 
+## set seed for the results to be reproducible
+set.seed(2403)
+## making our fit
+cfit1 <- rpart(spam ~ ., data=spam.data, method="class",
+               control=my.control)
+
+## check the cp table
+printcp(cfit1)
+
+# smallest Xvalidation error is of tree 19, xerror is 0.20243, 
+#xstd 0.010136, sum=0.212566
+0.20243+0.010136   
+# smallest tree with Xerror smaller than sum above: 
+## n  CP            nsplit rel error  xerror      xstd
+## 17 0.00082736     43      0.13127  0.20684 0.010237
+## Using SE rule, we choose tree 17 with 43 splits and  
+#44 terminal nodes
+
+## prune our tree from cfit1 to get our optimal tree
+cfit1pruned <- prune(cfit1, cp=0.00083)
+par(mfrow = c(1,1), xpd = NA)
+
+@
+
+<<reference2,echo=TRUE,eval=TRUE,fig=TRUE>>=
+## Tree with 8 terminal nodes only (7splits = 8 terminal nodes)
+## Plots a subtree
+cfit1prunedtoplot <- prune(cfit1, cp=0.0072)
+plot(cfit1prunedtoplot, uniform=T,margin=0.2, main = "Subtree from optimal
+     tree for classifier 1")
+text(cfit1prunedtoplot, use.n=T, cex=.9)
+@
+
+<<reference8,echo=TRUE,eval=TRUE>>=
+## Contingency Table for missclassification rate calculation 
+## From prunned tree with 44 terminal nodes
+conf.matrix<-table(spam.data$spam, predict(cfit1pruned, 
+                                           type="class"))
+rownames(conf.matrix) <- paste("Actual", rownames(conf.matrix), 
+                               sep = ":")
+colnames(conf.matrix) <- paste("Pred", colnames(conf.matrix), 
+                               sep = ":")
+print(addmargins(conf.matrix))
+
+## Misclassification rate ~ 5.2%
+(addmargins(conf.matrix)[1,2]+addmargins(conf.matrix)[2,1])/
+  addmargins(conf.matrix)[3,3]
+# 0.05172789
+## FAlse negatives:  0.0728075
+(addmargins(conf.matrix))[2,1]/(addmargins(conf.matrix))[2,3]
+## FAlse positives:  0.03802009
+(addmargins(conf.matrix))[1,2]/(addmargins(conf.matrix))[1,3]
+@
+
+<<reference3,echo=TRUE,eval=TRUE,fig=TRUE>>=
+####Plot of error versus number of splits
+numsplits <- cfit1pruned$cptable[, 2]
+trainerror <- cfit1pruned$cptable[, 3]
+xerror <- cfit1pruned$cptable[, 4]
+xstd <- cfit1pruned$cptable[, 5]
+plot(numsplits, trainerror, ylim=c(0, 1), type="l", lwd=2, lty=1, 
+     xlab = "Number of splits", ylab = "Error")
+lines(numsplits, xerror, lty=2, col=2, lwd=2)
+lines(numsplits, xerror-xstd, lty=2, col=2)
+lines(numsplits, xerror+xstd, lty=2, col=2)
+title("Cross-validation and Training Error Estimates 
+      for classifier 1")
+legend("bottomleft", legend=c("trainerror", "xerror"), 
+       lty =c(1,2), bty="n", col = c(1,2))
+@
+
+<<reference4,echo=TRUE,eval=TRUE,fig=TRUE>>=
+######## Second classifier #######################################
+## cost for false positive is 10 (classify good email as spam)
+## cost for false negative is 1
+lmat=matrix(c(0,10,1,0), nrow=2, byrow=T)
+lmat
+
+set.seed(2403)
+cfit2 <- rpart(spam ~ .,
+               data=spam.data, method="class", control=my.control, 
+               parms=list(loss=lmat))
+printcp(cfit2)
+
+### SE rule, smallest Xerror plus its standard error
+2.7049+0.11481
+## 2.81971
+## smaller tree with Xerror smaller than 2.81971:
+####         CP     nsplit rel error  xerror    xstd
+###  20  0.00386100     34   0.27799  2.8163  0.11698   
+cfit2pruned <- prune(cfit2, cp=0.0039)
+## table to pot Error versus number of splis: 
+numsplits <- cfit2pruned$cptable[, 2]
+trainerror <- cfit2pruned$cptable[, 3]
+xerror <- cfit2pruned$cptable[, 4]
+xstd <- cfit2pruned$cptable[, 5]
+## plot
+plot(numsplits, trainerror, ylim=c(0, 10), type="l")
+lines(numsplits, xerror, lty=2, col=2)
+lines(numsplits, xerror-xstd, lty=2, col=2)
+lines(numsplits, xerror+xstd, lty=2, col=2)
+title("Cross-validation and Training Error Estimates 
+      for classifier 2")
+legend("topright", c("trainerror", "xerror"), 
+       lty=c(1,2),col = c(1,2))
+@
+
+<<reference5,echo=TRUE,eval=TRUE,fig=TRUE>>=
+
+### Small subtree to plot, with 8 terminal nodes
+cfit2prunedtoplot <- prune(cfit2, cp=0.025)
+plot(cfit2prunedtoplot, uniform=T,margin=0.2, main = "Subtree from optimal 
+     tree for classifier 2")
+text(cfit2prunedtoplot, use.n=T, cex=.8)
+@
+
+<<reference7,echo=TRUE,eval=TRUE>>=
+### Contingency Table for missclassification rate calculation 
+conf.matrix3<-table(spam.data$spam, predict(cfit2pruned, 
+                                            type="class"))
+rownames(conf.matrix3) <- paste("Actual", rownames(conf.matrix3), 
+                                sep = ":")
+colnames(conf.matrix3) <- paste("Pred", colnames(conf.matrix3), 
+                                sep = ":")
+print(addmargins(conf.matrix3))
+
+## Misclassification rate ~ 10%
+(addmargins(conf.matrix3)[1,2]+addmargins(conf.matrix3)[2,1])/
+  addmargins(conf.matrix3)[3,3]
+# 0.09976092
+## FAlse negatives  ~ 25%
+(addmargins(conf.matrix3))[2,1]/(addmargins(conf.matrix3))[2,3]
+# 0.2504137
+## False positives ~ 1.7%
+(addmargins(conf.matrix3))[1,2]/(addmargins(conf.matrix3))[1,3]
+@
+
+\end{document}
