@@ -16,9 +16,10 @@ Main unsuperivsed methods includes: clustering analysis, association rule, kmean
 Main ensemble supervised methods includes: bagging(an extesnsion of bootstrapping), boosting, randomforest...
 
 General Comments: 
-                  Ensemble models are ideal for low bias and high variance datasets. Because the ensemble results lower the variance and                     lead to enhance model performance. Usually, the most powerful model is random forest.
 
-                  Decision tree is unstable and easily overfit, but it is easily to interpret. Meanwhile, the ensemble models are not able                   to interpret by a series of visible seperating rules. Ensemble models use perturb and combine methods to generate                           multiple models and then average the results.
+  Ensemble models are ideal for low bias and high variance datasets. Because the ensemble results lower the variance and                     lead to enhance model performance. Usually, the most powerful model is random forest.
+
+  Decision tree is unstable and easily overfit, but it is easily to interpret. Meanwhile, the ensemble models are not able                   to interpret by a series of visible seperating rules. Ensemble models use perturb and combine methods to generate                           multiple models and then average the results.
                   
 
 There are several projects that has been analyzed by data mining method through various topics to show you how it works. 
