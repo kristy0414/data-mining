@@ -28,6 +28,6 @@ There are several projects that has been analyzed by data mining method through 
 
 2. spam email filter, use classfication tree and stratified sampling.
   
-3. the realtion between levels of income and citizens charateristics, simple case to teach how to use classification tree step by step.
+3. the realtion between levels of income and citizens charateristics, simple case to teach how to use classification tree and random forest step by step.
 
 
