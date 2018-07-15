@@ -19,10 +19,10 @@ General Comments: Ensemble models are ideal for low bias and high variance datas
 
 There are several projects that has been analyzed by data mining method through various topics to show you how it works. 
 
-1. <women contraceptive methods>, final model is random forest.
+1. women contraceptive methods, final model is random forest.
 
-2. <spam email filter>, use classfication tree and stratified sampling.
+2. spam email filter, use classfication tree and stratified sampling.
   
-3. <the realtion between levels of income and citizens charateristics>, use classification tree.
+3. the realtion between levels of income and citizens charateristics, use classification tree.
 
 
